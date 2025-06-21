@@ -8,7 +8,8 @@ INTRODUCTION                                    *deej*
 Deej.nvim is a Neovim plugin that plays rhythmic beats as you type code, turning
 your coding session into a DJ-like experience, inspired by Teej. Each keypress
 triggers a sound, with different beats for regular characters, enter, braces, or
-semicolons.
+semicolons. Supports themes for different sound profiles and an optional
+background loop.
 
 INSTALLATION                                    *deej-installation*
 
@@ -34,7 +35,8 @@ INSTALLATION                                    *deej-installation*
    - macOS: `brew install mpv`
    - Windows: Install `mpv` and add to PATH, or use WSL.
 
-3. Download WAV beat samples (e.g., kick.wav, snare.wav) and place them in
+3. Download WAV beat samples (e.g., kick.wav, snare.wav) and optionally a loop
+   track (e.g., background_loop.wav) for each theme. Place them in
    `~/.local/share/nvim/site/data/deej/beats/`.
 
 CONFIGURATION                                   *deej-configuration*
@@ -43,40 +45,59 @@ Add to your `init.lua`:
 >
 require('deej').setup({
   beat_dir = vim.fn.stdpath('data') .. '/deej/beats/',
-  beat_files = {
-    default = 'kick.wav',
-    enter = 'snare.wav',
-    brace = 'hihat.wav',
-    semicolon = 'clap.wav',
+  themes = {
+    default = {
+      beat_files = {
+        default = 'kick.wav',
+        enter = 'snare.wav',
+        brace = 'hihat.wav',
+        semicolon = 'clap.wav',
+      },
+      loop = nil,
+    },
+    techno = {
+      beat_files = {
+        default = 'techno_kick.wav',
+        enter = 'techno_snare.wav',
+        brace = 'techno_hihat.wav',
+        semicolon = 'techno_clap.wav',
+      },
+      loop = 'techno_loop.wav',
+    },
   },
-  cooldown = 0.1, -- Time between sounds (seconds)
-  volume = 50,    -- Volume for mpv (0-100)
+  active_theme = 'default',
+  cooldown = 0.1, -- Time between triggered sounds (seconds)
+  volume = 50,    -- Volume for triggered beats (0-100)
+  loop_volume = 30, -- Volume for loop track (0-100)
 })
 <
 
 COMMANDS                                        *deej-commands*
 
-*DeejToggle*  Toggle the plugin on/off.
+*DeejToggle*  Toggle the plugin and background loop on/off.
 >
 :DeejToggle
 <
 
+*DeejSetTheme*  Switch to a different sound theme (e.g., `:DeejSetTheme techno`).
+>
+:DeejSetTheme <theme_name>
+<
+
 MAPPINGS                                        *deej-mappings*
 
-Suggested mapping:
+Suggested mappings:
 >
 vim.keymap.set('n', '<leader>dj', require('deej').toggle, { desc = 'Toggle Deej' })
+vim.keymap.set('n', '<leader>dt', ':DeejSetTheme ', { desc = 'Set Deej Theme' })
 <
 
 USAGE                                           *deej-usage*
 
-- Type code to trigger beats:
-  - Regular characters: Kick drum
-  - Enter: Snare
-  - Braces `{}`: Hi-hat
-  - Semicolon `;`: Clap
-- Use `<leader>dj` or `:DeejToggle` to toggle the plugin.
-- Customize beats by replacing WAV files or updating the configuration.
+- Type code to trigger beats based on the active theme.
+- A background loop plays if configured in the theme (requires mpv).
+- Use `<leader>dj` or `:DeejToggle` to toggle the plugin and loop.
+- Switch themes with `:DeejSetTheme <theme_name>`.
+- Customize themes by defining new ones or replacing sound files.
 
 vim:tw=78:ts=8:ft=help:norl:
-
