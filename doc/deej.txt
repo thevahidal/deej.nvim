@@ -1,0 +1,82 @@
+*deej.txt*    Play DJ beats as you type code in Neovim
+
+Author:  Vahid Al
+License: MIT
+
+INTRODUCTION                                    *deej*
+
+Deej.nvim is a Neovim plugin that plays rhythmic beats as you type code, turning
+your coding session into a DJ-like experience, inspired by Teej. Each keypress
+triggers a sound, with different beats for regular characters, enter, braces, or
+semicolons.
+
+INSTALLATION                                    *deej-installation*
+
+1. Install using your favorite plugin manager:
+
+   With `lazy.nvim`:
+   >
+   { 'thevahidal/deej.nvim', config = function() require('deej').setup() end }
+   <
+
+   With `packer.nvim`:
+   >
+   use 'thevahidal/deej.nvim'
+   <
+
+   With `vim-plug`:
+   >
+   Plug 'thevahidal/deej.nvim'
+   <
+
+2. Install an audio player:
+   - Linux: `sudo apt-get install alsa-utils mpv`
+   - macOS: `brew install mpv`
+   - Windows: Install `mpv` and add to PATH, or use WSL.
+
+3. Download WAV beat samples (e.g., kick.wav, snare.wav) and place them in
+   `~/.local/share/nvim/site/data/deej/beats/`.
+
+CONFIGURATION                                   *deej-configuration*
+
+Add to your `init.lua`:
+>
+require('deej').setup({
+  beat_dir = vim.fn.stdpath('data') .. '/deej/beats/',
+  beat_files = {
+    default = 'kick.wav',
+    enter = 'snare.wav',
+    brace = 'hihat.wav',
+    semicolon = 'clap.wav',
+  },
+  cooldown = 0.1, -- Time between sounds (seconds)
+  volume = 50,    -- Volume for mpv (0-100)
+})
+<
+
+COMMANDS                                        *deej-commands*
+
+*DeejToggle*  Toggle the plugin on/off.
+>
+:DeejToggle
+<
+
+MAPPINGS                                        *deej-mappings*
+
+Suggested mapping:
+>
+vim.keymap.set('n', '<leader>dj', require('deej').toggle, { desc = 'Toggle Deej' })
+<
+
+USAGE                                           *deej-usage*
+
+- Type code to trigger beats:
+  - Regular characters: Kick drum
+  - Enter: Snare
+  - Braces `{}`: Hi-hat
+  - Semicolon `;`: Clap
+- Use `<leader>dj` or `:DeejToggle` to toggle the plugin.
+- Customize beats by replacing WAV files or updating the configuration.
+
+vim:tw=78:ts=8:ft=help:norl:
+
