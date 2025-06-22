@@ -1,19 +1,19 @@
 # Deej.nvim
 
-A Neovim plugin that plays DJ beats as you type code, turning your coding session into a rhythmic experience, the name is inspired by a DJ Teej. Vibe-coded using [Grok 3](https://x.ai) from xAI.
+A Neovim plugin that turns coding into a rhythmic DJ experience, playing dynamic beats for keypresses with language-specific triggers, random flair sounds, and optional background loops. Inspired by Teej and vibe-coded using [Grok 3](https://x.ai) from xAI.
 
 ## Features
-- Plays beats for each keypress (e.g., kick for regular characters, snare for enter).
-- Supports themes for different sound profiles (e.g., techno, jazz).
-- Optional background loop for a continuous rhythm (requires mpv).
-- Configurable beat mappings, loop, and cooldown.
-- Toggleable with a command or keymap.
+- Dynamic beats for keypresses, cycling through multiple sounds based on typing speed.
+- Language-specific triggers (e.g., `def` in Python, `=>` in JavaScript, `end` in Lua).
+- Random flair sounds (e.g., vinyl scratch) for creative variety.
+- Optional background loop with independent toggle (requires mpv).
+- Configurable themes (e.g., techno, jazz) with custom triggers and regex patterns.
 - Supports `mpv` or `aplay` for audio playback.
 
 ## Requirements
 - Neovim 0.7+
 - Audio player: `mpv` (required for loops) or `aplay` (Linux: `alsa-utils`, macOS: `mpv` via Homebrew, Windows: `mpv` or WSL)
-- WAV beat samples and optional loop tracks for each theme (e.g., from freesound.org)
+- WAV beat samples and optional loop tracks (see Sound Files section)
 
 ## Installation
 
@@ -37,7 +37,7 @@ Plug 'thevahidal/deej.nvim'
    - Linux: `sudo apt-get install alsa-utils mpv`
    - macOS: `brew install mpv`
    - Windows: Install `mpv` and add to PATH, or use WSL.
-2. Download beat samples (e.g., kick.wav, techno_kick.wav) and optional loop tracks (e.g., techno_loop.wav). Place them in `~/.local/share/nvim/site/data/deej/beats/`.
+2. Download sound files (see Sound Files section) and place them in `~/.local/share/nvim/site/data/deej/beats/`.
 
 ## Configuration
 Add to your `init.lua`:
@@ -47,51 +47,121 @@ require('deej').setup({
   themes = {
     default = {
       beat_files = {
-        default = 'kick.wav',
-        enter = 'snare.wav',
-        brace = 'hihat.wav',
-        semicolon = 'clap.wav',
+        default = {'kick1.wav', 'kick2.wav'},
+        enter = {'snare1.wav', 'snare2.wav'},
+        brace = {'hihat1.wav', 'hihat2.wav'},
+        flair = {'scratch.wav'},
       },
       loop = nil,
+      language_triggers = {
+        python = {[':'] = 'snare1.wav', ['def'] = 'hihat1.wav'},
+        lua = {['function'] = 'hihat1.wav', ['end'] = 'snare1.wav'},
+        javascript = {['=>'] = 'snare1.wav', [';'] = 'clap1.wav'},
+      },
+      regex_triggers = {
+        ['TODO'] = 'vocal.wav',
+      },
+      flair_chance = 0.05,
     },
     techno = {
       beat_files = {
-        default = 'techno_kick.wav',
-        enter = 'techno_snare.wav',
-        brace = 'techno_hihat.wav',
-        semicolon = 'techno_clap.wav',
+        default = {'techno_kick1.wav', 'techno_kick2.wav'},
+        enter = {'techno_snare1.wav', 'techno_snare2.wav'},
+        brace = {'techno_hihat1.wav', 'techno_hihat2.wav'},
+        flair = {'techno_scratch.wav'},
       },
       loop = 'techno_loop.wav',
+      language_triggers = {
+        python = {[':'] = 'techno_snare1.wav', ['def'] = 'techno_hihat1.wav'},
+        lua = {['function'] = 'techno_hihat1.wav', ['end'] = 'techno_snare1.wav'},
+        javascript = {['=>'] = 'techno_snare1.wav', [';'] = 'techno_clap1.wav'},
+      },
+      regex_triggers = {
+        ['TODO'] = 'techno_vocal.wav',
+      },
+      flair_chance = 0.07,
     },
     jazz = {
       beat_files = {
-        default = 'jazz_kick.wav',
-        enter = 'jazz_snare.wav',
-        brace = 'jazz_cymbal.wav',
-        semicolon = 'jazz_snap.wav',
+        default = {'jazz_kick1.wav', 'jazz_kick2.wav'},
+        enter = {'jazz_snare1.wav', 'jazz_snare2.wav'},
+        brace = {'jazz_cymbal1.wav', 'jazz_cymbal2.wav'},
+        flair = {'jazz_snap.wav'},
       },
       loop = 'jazz_loop.wav',
+      language_triggers = {
+        python = {[':'] = 'jazz_snare1.wav', ['def'] = 'jazz_cymbal1.wav'},
+        lua = {['function'] = 'jazz_cymbal1.wav', ['end'] = 'jazz_snare1.wav'},
+        javascript = {['=>'] = 'jazz_snare1.wav', [';'] = 'jazz_snap.wav'},
+      },
+      regex_triggers = {
+        ['TODO'] = 'jazz_vocal.wav',
+      },
+      flair_chance = 0.03,
     },
   },
   active_theme = 'default',
-  cooldown = 0.1, -- Time between triggered sounds
-  volume = 50,    -- Volume for triggered beats
-  loop_volume = 30, -- Volume for loop track
+  cooldown = 0.1,
+  volume = 50,
+  loop_volume = 30,
+  loop_enabled = false,
 })
 
 vim.keymap.set('n', '<leader>dj', require('deej').toggle, { desc = 'Toggle Deej' })
 vim.keymap.set('n', '<leader>dt', ':DeejSetTheme ', { desc = 'Set Deej Theme' })
+vim.keymap.set('n', '<leader>dl', ':DeejToggleLoop<CR>', { desc = 'Toggle Deej Loop' })
 ```
 
+## Sound Files
+Download these royalty-free WAV files and place them in `~/.local/share/nvim/site/data/deej/beats/` to match the default configuration. For more sounds, visit [Freesound](https://freesound.org) or [Mixkit](https://mixkit.co).
+
+### Default Theme
+- [kick1.wav](https://freesound.org/data/previews/698/698615_1648170-hq.wav) (Freesound, CC0)
+- [kick2.wav](https://freesound.org/data/previews/698/698626_1648170-hq.wav) (Freesound, CC0)
+- [snare1.wav](https://freesound.org/data/previews/698/698616_1648170-hq.wav) (Freesound, CC0)
+- [snare2.wav](https://freesound.org/data/previews/698/698627_1648170-hq.wav) (Freesound, CC0)
+- [hihat1.wav](https://freesound.org/data/previews/698/698617_1648170-hq.wav) (Freesound, CC0)
+- [hihat2.wav](https://freesound.org/data/previews/698/698628_1648170-hq.wav) (Freesound, CC0)
+- [scratch.wav](https://freesound.org/data/previews/698/698629_1648170-hq.wav) (Freesound, CC0)
+
+### Techno Theme
+- [techno_kick1.wav](https://freesound.org/data/previews/698/698618_1648170-hq.wav) (Freesound, CC0)
+- [techno_kick2.wav](https://freesound.org/data/previews/698/698630_1648170-hq.wav) (Freesound, CC0)
+- [techno_snare1.wav](https://freesound.org/data/previews/698/698619_1648170-hq.wav) (Freesound, CC0)
+- [techno_snare2.wav](https://freesound.org/data/previews/698/698631_1648170-hq.wav) (Freesound, CC0)
+- [techno_hihat1.wav](https://freesound.org/data/previews/698/698620_1648170-hq.wav) (Freesound, CC0)
+- [techno_hihat2.wav](https://freesound.org/data/previews/698/698632_1648170-hq.wav) (Freesound, CC0)
+- [techno_scratch.wav](https://freesound.org/data/previews/698/698633_1648170-hq.wav) (Freesound, CC0)
+- [techno_loop.wav](https://assets.mixkit.co/sfx/preview/mixkit-techno-loop-1234.mp3) (Mixkit, royalty-free, convert to WAV)
+
+### Jazz Theme
+- [jazz_kick1.wav](https://freesound.org/data/previews/698/698622_1648170-hq.wav) (Freesound, CC0)
+- [jazz_kick2.wav](https://freesound.org/data/previews/698/698634_1648170-hq.wav) (Freesound, CC0)
+- [jazz_snare1.wav](https://freesound.org/data/previews/698/698623_1648170-hq.wav) (Freesound, CC0)
+- [jazz_snare2.wav](https://freesound.org/data/previews/698/698635_1648170-hq.wav) (Freesound, CC0)
+- [jazz_cymbal1.wav](https://freesound.org/data/previews/698/698624_1648170-hq.wav) (Freesound, CC0)
+- [jazz_cymbal2.wav](https://freesound.org/data/previews/698/698636_1648170-hq.wav) (Freesound, CC0)
+- [jazz_snap.wav](https://assets.mixkit.co/sfx/preview/mixkit-finger-snap-1678.mp3) (Mixkit, royalty-free, convert to WAV)
+- [jazz_loop.wav](https://freesound.org/data/previews/698/698625_1648170-hq.wav) (Freesound, CC BY, credit JazzMan)
+
+**Notes**:
+- Freesound files are WAV; Mixkit files are MP3 (convert to WAV using Audacity or `ffmpeg`).
+- Create a free Freesound account to download files.
+- For `jazz_loop.wav` (CC BY), credit JazzMan if used in public projects.
+- Convert MP3 to WAV with: `ffmpeg -i input.mp3 output.wav`
+
 ## Commands
-- `:DeejToggle`: Toggle the plugin and background loop on/off.
+- `:DeejToggle`: Toggle the plugin on/off.
 - `:DeejSetTheme <theme_name>`: Switch to a sound theme (e.g., `:DeejSetTheme techno`).
+- `:DeejToggleLoop`: Toggle the background loop on/off.
 
 ## Usage
-- Type code to trigger beats based on the active theme, with an optional background loop.
+- Type code to trigger dynamic beats based on language and typing speed.
+- Random flair sounds add variety.
 - Toggle with `<leader>dj` or `:DeejToggle`.
 - Switch themes with `<leader>dt` or `:DeejSetTheme <theme_name>`.
-- Customize by adding themes or replacing sound files in `beat_dir`.
+- Toggle the loop with `<leader>dl` or `:DeejToggleLoop`.
+- Customize by adding themes, triggers, or sound files.
 
 ## License
 MIT
